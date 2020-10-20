@@ -1,0 +1,49 @@
+version: '3.7'
+
+services:
+  wordpress-service:
+    image: wordpress
+    restart: always
+    ports:
+      - 80:80
+      - 8080:80
+      - 443:443
+    environment:
+      WORDPRESS_DB_HOST: db-service
+      WORDPRESS_DB_USER: wpadmindb
+      WORDPRESS_DB_PASSWORD: wpadmin2019
+      WORDPRESS_DB_NAME: wpdb
+    volumes:
+      - ../wordpress/:/var/www/html
+      - ../wordpress-themes/:/var/www/html/wp-content/themes/
+      - ../wordpress-plugins/:/var/www/html/wp-content/plugins/
+    networks:
+      - wp-cms-network
+    tty: true
+  db-service:
+    image: mysql:5.7
+    restart: always
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_DATABASE: wpdb
+      MYSQL_USER: wpadmindb
+      MYSQL_PASSWORD: wpadmin2019
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    volumes:
+      - ../db/:/var/lib/mysql
+    networks:
+      - wp-cms-network
+    tty: true
+
+volumes:
+  wordpress:
+  db:
+
+networks:
+  wp-cms-network:
+    name: wp-cms-network
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.4.0/24
